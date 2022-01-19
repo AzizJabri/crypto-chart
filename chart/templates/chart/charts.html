@@ -1,0 +1,80 @@
+{% extends 'chart/base.html' %}
+
+
+
+<script>
+    {% block jquery %}
+    var endpoint = '/api'
+    var btcData = []
+    var ethData = []
+    var Labels = []
+    $.ajax({
+        method : "GET",
+        url : endpoint,
+        success : function(data){
+            Labels=data.labels
+            btcData=data.price
+            get_chart()
+        },
+        error : function(error_data){
+            console.log("error")
+            console.log(error_data)
+        }
+    })
+
+    function get_chart(){
+        const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Labels,
+                    datasets: [{
+                        label: 'Bitcoin Price',
+                        data: btcData,
+                        backgroundColor : [
+                            'rgba(0,0,0,1)'
+
+                        ],
+                        borderColor : ['rgba(0,0,255,0.5)']
+                    },/*
+                    {
+                        label: 'Ethereum Price',
+                        data: defaultData,
+                        backgroundColor : [
+                            'rgba(0,0,0,1)'
+
+                        ],
+                        borderColor : ['rgba(0,0,255,0.5)']
+                    }*/
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.3 // disables bezier curves
+                        }
+                    },
+
+                }
+            });
+    }
+
+    
+    {% endblock %}
+</script>
+
+{% block content %}
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-7">
+            <h1 class="text-center text-uppercase m-5 text-primary">Cryptocurrency Prices</h1>
+            <canvas id="myChart" width="400" height="400"></canvas>
+        </div>
+        <div class="col"></div>
+    </div>
+{% endblock content %}
