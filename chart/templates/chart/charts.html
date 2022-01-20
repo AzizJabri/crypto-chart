@@ -4,27 +4,142 @@
 
 <script>
     {% block jquery %}
-    var endpoint = '/api'
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'LOADING DATA FROM THE API...',
+                        data: [],
+                        backgroundColor : [
+                            'rgba(0,0,0,1)'
+
+                        ],
+                        borderColor : ['rgba(0,0,255,0.5)']
+                    }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                // Include a dollar sign in the ticks
+                                callback: function(value, index, values) {
+                                    return '$ ' + value;
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.2 // disables bezier curves
+                        }
+                    },
+
+                }
+            });
+        function get_data(endpoint){
+            $.ajax({
+            method : "GET",
+            url : endpoint,
+            success : function(data){
+                Labels=data.labels
+                btcData=data.priceBtc
+                ethData=data.priceEth
+                if(btc_btn.data("is_active")=="True"){
+                    chart.data.labels = Labels;
+                    chart.data.datasets[0].label = "Bitcoin Price";
+                    chart.data.datasets[0].data = btcData;
+                }else{
+                    chart.data.labels = Labels;
+                    chart.data.datasets[0].label = "Ethereum Price";
+                    chart.data.datasets[0].data = ethData;
+                }
+                
+                chart.update()
+                
+            },
+            error : function(error_data){
+                console.log("error")
+                console.log(error_data)
+            }
+            })
+        }
     var btcData = []
     var ethData = []
     var Labels = []
-    $.ajax({
-        method : "GET",
-        url : endpoint,
-        success : function(data){
-            Labels=data.labels
-            btcData=data.price
-            get_chart()
-        },
-        error : function(error_data){
-            console.log("error")
-            console.log(error_data)
-        }
+    get_data('/api/daily');
+    btc_btn = $("#btc");
+    eth_btn = $("#eth");
+    refresh_btn = $("#refresh");
+
+    daily_btn = $("#day")
+    weekly_btn = $("#week")
+    monthly_btn = $("#month")
+    yearly_btn = $("#year")
+
+    eth_btn.click(function(){
+        chart.data.datasets[0].label = "Ethereum Price";
+        chart.data.datasets[0].data = ethData;
+        chart.data.datasets[0].borderColor[0] = 'rgba(255,0,0,0.5)';
+        eth_btn.addClass("disabled");
+        btc_btn.removeClass("disabled");
+        btc_btn.data("is_active","False");
+        chart.update();
+    });
+    btc_btn.click(function(){
+        chart.data.datasets[0].label = "Bitcoin Price";
+        chart.data.datasets[0].data = btcData;
+        chart.data.datasets[0].borderColor[0] = 'rgba(0,0,255,0.5)';
+        btc_btn.addClass("disabled");
+        btc_btn.data("is_active","True");
+        eth_btn.removeClass("disabled");
+        chart.update();
+    });
+    
+    refresh_btn.click(function(){
+        get_data("/api/daily")
+    }
+    );
+
+
+    daily_btn.click(function(){
+        get_data('/api/daily');
+        daily_btn.addClass("disabled")
+        weekly_btn.removeClass("disabled")
+        monthly_btn.removeClass("disabled")
+        yearly_btn.removeClass("disabled")
+    })
+
+    weekly_btn.click(function(){
+        get_data("/api/weekly");
+        daily_btn.removeClass("disabled")
+        weekly_btn.addClass("disabled")
+        monthly_btn.removeClass("disabled")
+        yearly_btn.removeClass("disabled")
+    })
+
+    monthly_btn.click(function(){
+        get_data('/api/monthly')
+        daily_btn.removeClass("disabled")
+        weekly_btn.removeClass("disabled")
+        monthly_btn.addClass("disabled")
+        yearly_btn.removeClass("disabled")
+    })
+
+    yearly_btn.click(function(){
+        get_data('/api/yearly')
+        daily_btn.removeClass("disabled")
+        weekly_btn.removeClass("disabled")
+        monthly_btn.removeClass("disabled")
+        yearly_btn.addClass("disabled")
     })
 
     function get_chart(){
-        const ctx = document.getElementById('myChart').getContext('2d');
-            const myChart = new Chart(ctx, {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: Labels,
@@ -36,27 +151,24 @@
 
                         ],
                         borderColor : ['rgba(0,0,255,0.5)']
-                    },/*
-                    {
-                        label: 'Ethereum Price',
-                        data: defaultData,
-                        backgroundColor : [
-                            'rgba(0,0,0,1)'
-
-                        ],
-                        borderColor : ['rgba(0,0,255,0.5)']
-                    }*/
+                    }
                     ]
                 },
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: false
+                            beginAtZero: false,
+                            ticks: {
+                                // Include a dollar sign in the ticks
+                                callback: function(value, index, values) {
+                                    return '$ ' + value;
+                                }
+                            }
                         }
                     },
                     elements: {
                         line: {
-                            tension: 0.3 // disables bezier curves
+                            tension: 0.2 // disables bezier curves
                         }
                     },
 
@@ -64,17 +176,37 @@
             });
     }
 
-    
     {% endblock %}
 </script>
 
 {% block content %}
+    <h1 class="text-center text-uppercase m-3 text-primary">Cryptocurrency Prices</h1>
     <div class="row">
         <div class="col"></div>
-        <div class="col-7">
-            <h1 class="text-center text-uppercase m-5 text-primary">Cryptocurrency Prices</h1>
-            <canvas id="myChart" width="400" height="400"></canvas>
+        <div class="col text-center m-1"><button type="button" id="btc" data-is_active="True" class="btn btn-primary disabled">Bitcoin</button></div>
+        <div class="col text-center m-1"><button type="button" id="eth" class="btn btn-danger ">Ethereum</button></div>
+        <div class="col"></div>
+    
+    </div>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-8 text-center">
+            <canvas id="myChart" width="600" height="400"></canvas>
         </div>
         <div class="col"></div>
     </div>
+    <div class="row m-2">
+        <div class="col text-center">
+            <button class="btn btn-warning disabled" id="day">Daily</button>
+            <button class="btn btn-warning" id="week">Weekly</button>
+            <button class="btn btn-warning" id="month">Monthly</button>
+            <button class="btn btn-warning" id="year">Yearly</button>
+        </div>
+    </div>
+    <div class="row m-2">
+        <div class="col text-center">
+            <button class="btn btn-success" id="refresh">Update Data</button>
+        </div>
+    </div>
 {% endblock content %}
+
