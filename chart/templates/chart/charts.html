@@ -16,7 +16,7 @@
                             'rgba(0,0,0,1)'
 
                         ],
-                        borderColor : ['rgba(0,0,255,0.5)']
+                        borderColor : ['rgba(13,110,253,0.6)']
                     }
                     ]
                 },
@@ -83,7 +83,7 @@
     eth_btn.click(function(){
         chart.data.datasets[0].label = "Ethereum Price";
         chart.data.datasets[0].data = ethData;
-        chart.data.datasets[0].borderColor[0] = 'rgba(255,0,0,0.5)';
+        chart.data.datasets[0].borderColor[0] = 'rgba(220,53,69,0.6)';
         eth_btn.addClass("disabled");
         btc_btn.removeClass("disabled");
         btc_btn.data("is_active","False");
@@ -92,7 +92,7 @@
     btc_btn.click(function(){
         chart.data.datasets[0].label = "Bitcoin Price";
         chart.data.datasets[0].data = btcData;
-        chart.data.datasets[0].borderColor[0] = 'rgba(0,0,255,0.5)';
+        chart.data.datasets[0].borderColor[0] = 'rgba(13,110,253,0.6)';
         btc_btn.addClass("disabled");
         btc_btn.data("is_active","True");
         eth_btn.removeClass("disabled");
@@ -100,7 +100,17 @@
     });
     
     refresh_btn.click(function(){
-        get_data("/api/daily")
+        if(daily_btn.hasClass("disabled")){
+            get_data("/api/daily")
+        }else if(weekly_btn.hasClass("disabled")){
+            get_data("/api/weekly")
+        }else if(monthly_btn.hasClass("disabled")){
+            get_data("/api/monthly")
+        }else if(yearly_btn.hasClass("disabled")){
+            get_data("/api/yearly")
+        }else{
+            get_data("/api/daily")
+        }
     }
     );
 
@@ -147,10 +157,10 @@
                         label: 'Bitcoin Price',
                         data: btcData,
                         backgroundColor : [
-                            'rgba(0,0,0,1)'
+                            'rgba(0,0,0,0.5)'
 
                         ],
-                        borderColor : ['rgba(0,0,255,0.5)']
+                        borderColor : ['rgba(13,110,253,0.6)']
                     }
                     ]
                 },
@@ -196,7 +206,7 @@
         <div class="col"></div>
     </div>
     <div class="row m-2">
-        <div class="col text-center">
+        <div class="col text-center m-3">
             <button class="btn btn-warning disabled" id="day">Daily</button>
             <button class="btn btn-warning" id="week">Weekly</button>
             <button class="btn btn-warning" id="month">Monthly</button>

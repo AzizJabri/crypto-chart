@@ -25,7 +25,8 @@ def ApiView(request,**kwargs):
 
 class HomeView(View):
     def get(self,request,*arg,**kwarg):
-        return render(request,'chart/charts.html')
+        website_url = "https://www.linkedin.com/in/aziz-jabri/"
+        return render(request,'chart/charts.html',context={'website_url':website_url})
 
 def page_not_found(request,exception):
     return render(request,'404.html')
