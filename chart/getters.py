@@ -4,9 +4,7 @@ import json
 import time
 from datetime import datetime
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 
 
 api_key = os.getenv("api_key")
